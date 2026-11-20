@@ -31,16 +31,24 @@ pushing.
 ## Architecture
 
 ```
-index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
+index.js                          SDK wiring only: registerHandlers() then connect()
+src/app.js                        every SDK handler -> service; configuration actions
+src/service.js                    watch list, refresh timer, devices/states, scene triggers, actions
+src/oba.js                        OneBusAway client: arrivals, stop, stops near a point (spaced, 429 retried)
+src/arrivals.js                   OBA answers -> departures (delay, real time, filters), alerts in force
+src/devices.js                    Gladys device of a watched stop, its states
 src/scenes.js                     scene action handlers (manifest `scene_actions`)
 src/widgets.js                    dashboard widget handlers (manifest `widgets`)
-src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
-gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
+src/messages.js                   texts sent from the container (en, fr, de, es)
+src/errors.js                     ActionFailure: a failed action, shown in red by Gladys
+src/store.js                      /data/watch.json (atomic, coalesced writes)
+src/config.js                     DEFAULT_CONFIG, regions (server URLs) + normalization
+gladys-assistant-integration.json manifest: config, actions, widget, scene triggers and action
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
 test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+test/helpers/world.js             fake Gladys + fake OBA server on the fixtures + manual clock + /data
+test/helpers/scenario.js          delay, alert and countdown staged on the real arrivals
+test/fixtures/oba                 real Puget Sound answers of 20/11/2026 ~14:08 (Benton Ln, Roosevelt)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -78,8 +86,9 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** is in four languages (English, French, German with
+  "du", Spanish with "usted"): action messages, manifest texts, feature names
+  and `docs/{en,fr,de,es}.md`, kept in sync (`test/i18n.test.js`).
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -259,3 +268,40 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+# Intégration OneBusAway (notes de développement, 20/11/2026)
+
+Structure reprise de `gladys-sl-stockholm` (un appareil par arrêt et jeu de filtres, déclencheurs à
+seuils, un widget, une action de scène) : voir ses notes pour le fonctionnement des seuils.
+
+## API (vérifiée le 20/11/2026 sur `api.pugetsound.onebusaway.org`, clé `TEST`)
+
+- REST `/api/where/<méthode>.json?key=…` ; la clé passe **dans l'URL** : les erreurs ne citent que
+  l'hôte, jamais l'URL. Le statut est dans le code HTTP et dans le champ `code` du corps.
+- **Clé `TEST` : 429 « rate limit exceeded » dès deux requêtes à moins d'une seconde environ.** Le
+  client sérialise, espace d'une seconde et réessaie un 429 après 3 puis 10 s. Clé personnelle
+  gratuite (`oba_api_key@soundtransit.org` pour Puget Sound), propre à chaque région.
+- Clé refusée : HTTP 401 `permission denied`. Arrêt inconnu : `arrivals-and-departures-for-stop`
+  répond **404**, mais `stop/<id>.json` répond **HTTP 200 avec le corps `null`**.
+- Identifiant d'arrêt = `<agence>_<code>` (`1_75403`, `40_N23-T2`) ; le `code` du poteau n'est pas
+  toujours la fin de l'id (`3_1273` a le code `3075`) : l'ajout exige l'id complet.
+- **Pas de recherche par nom** : `stops-for-location` demande `lat`/`lon` (`query` ne matche que le
+  code). D'où l'action « autour d'un point » (400 m), avec un filtre de nom côté conteneur.
+- `arrivalsAndDepartures` : heures en ms epoch ; `predicted` + `predictedDepartureTime` (0 = pas de
+  prévision : horaire) ; `departureEnabled: false` au terminus (arrivée seule, écartée). **Un même
+  trajet peut être listé deux fois** (deux véhicules, ligne 67 le 20/11) : dédoublonné par
+  `tripId|serviceDate|stopSequence`. Suppression : `CANCELED` dans `status`/`tripStatus.status`
+  (non vu en vrai, lu au mieux).
+- Alertes (`references.situations`) : référencées par `entry.situationIds` (arrêt) et
+  `situationIds` de chaque passage. Beaucoup sont publiées à l'avance (`activeWindows` futurs : match
+  de football du lendemain dans les fixtures) : seules celles **en vigueur** comptent.
+- Régions : `regions.onebusaway.org/regions-v3.json`, `obaBaseUrl` + `api/where/…` (San Diego :
+  `…/api/api/where/`). MTA New York n'a pas `supportsObaRealtimeApis` : absente.
+
+## Choix
+
+- Sans clé personnelle, la clé `TEST` (Puget Sound seulement) ; l'état le dit. `transports: cloud`,
+  `countries: US, AU` (Adélaïde).
+- Fenêtre de 120 min (`minutesAfter`) ; sans passage, comptes à rebours à 1440.
+- Trois déclencheurs (heure de partir, retard, nouvelle alerte) ; pas de déclencheur « supprimé »,
+  les suppressions OBA étant rares et non observées.

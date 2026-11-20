@@ -1,0 +1,79 @@
+{
+  "code": 200,
+  "currentTime": 1795212444309,
+  "data": {
+    "entry": {
+      "code": "75403",
+      "direction": "SW",
+      "id": "1_75403",
+      "lat": 47.654503,
+      "locationType": 0,
+      "lon": -122.30513,
+      "name": "East Stevens Way NE & Benton Ln",
+      "parent": "",
+      "routeIds": ["1_100259", "1_102768", "1_100271"],
+      "staticRouteIds": ["1_100259", "1_102768", "1_100271"],
+      "wheelchairBoarding": "ACCESSIBLE"
+    },
+    "references": {
+      "agencies": [
+        {
+          "disclaimer": "",
+          "email": "",
+          "fareUrl": "https://kingcounty.gov/en/dept/metro/fares-and-payment/prices",
+          "id": "1",
+          "lang": "EN",
+          "name": "Metro Transit",
+          "phone": "206-553-3000",
+          "privateService": false,
+          "timezone": "America/Los_Angeles",
+          "url": "https://kingcounty.gov/en/dept/metro"
+        }
+      ],
+      "routes": [
+        {
+          "agencyId": "1",
+          "color": "FDB71A",
+          "description": "Northgate - Roosevelt - University District",
+          "id": "1_100259",
+          "longName": "",
+          "nullSafeShortName": "67",
+          "shortName": "67",
+          "textColor": "000000",
+          "type": 3,
+          "url": "https://kingcounty.gov/en/dept/metro/routes-and-service/schedules-and-maps/schedule?route=067"
+        },
+        {
+          "agencyId": "1",
+          "color": "FDB71A",
+          "description": "University District - Shoreline South Station",
+          "id": "1_102768",
+          "longName": "",
+          "nullSafeShortName": "72",
+          "shortName": "72",
+          "textColor": "000000",
+          "type": 3,
+          "url": "https://kingcounty.gov/en/dept/metro/routes-and-service/schedules-and-maps/schedule?route=072"
+        },
+        {
+          "agencyId": "1",
+          "color": "FDB71A",
+          "description": "Bitter Lake - Roosevelt - University District",
+          "id": "1_100271",
+          "longName": "",
+          "nullSafeShortName": "77",
+          "shortName": "77",
+          "textColor": "000000",
+          "type": 3,
+          "url": "https://kingcounty.gov/en/dept/metro/routes-and-service/schedules-and-maps/schedule?route=077"
+        }
+      ],
+      "situations": [],
+      "stopTimes": [],
+      "stops": [],
+      "trips": []
+    }
+  },
+  "text": "OK",
+  "version": 2
+}

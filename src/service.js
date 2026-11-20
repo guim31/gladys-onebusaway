@@ -41,6 +41,10 @@ const SEEN_WRITE_MS = 3600 * 1000;
 // "Time to leave" and delay thresholds of a trip, kept in memory this long
 // after its scheduled time.
 const TRIP_MEMORY_MS = 2 * 3600 * 1000;
+// A new alert is announced only when it came into force this recently (when
+// its window says so): one attached to a trip that only now enters the
+// two-hour window, or to the first bus of the morning, is old news.
+export const ALERT_NEWS_MS = 30 * 60 * 1000;
 // Scene events sent per minute at most: the core refuses more than 300.
 const EVENTS_PER_MINUTE = 200;
 
@@ -289,7 +293,7 @@ export class ObaService {
   refresh(options = {}) {
     if (this.inflight) {
       // A read in progress may predate a device just created: read again after it.
-      return this.inflight.then(() => this.refresh(options));
+      return this.inflight.catch(() => {}).then(() => this.refresh(options));
     }
     this.inflight = this.doRefresh(options).finally(() => {
       this.inflight = null;
@@ -300,6 +304,11 @@ export class ObaService {
   async doRefresh({ republish = false } = {}) {
     const watches = this.createdWatches();
     if (watches.length === 0 || !this.config.baseUrl) {
+      if (this.lastError && this.config.baseUrl) {
+        // Nothing left to read: an old failure no longer says anything.
+        this.lastError = null;
+        await this.setStatus();
+      }
       return;
     }
     this.attemptedAt = this.now();
@@ -493,7 +502,7 @@ export class ObaService {
     for (const alert of alerts) {
       const memo = this.remember(`${key}|alert|${alert.id}`, now);
       memoryChanged ||= memo.changed;
-      if (!memo.fresh || first) {
+      if (!memo.fresh || first || (alert.since && now - alert.since > ALERT_NEWS_MS)) {
         continue;
       }
       for (const line of alert.lines.length > 0 ? alert.lines : ['']) {
@@ -564,14 +573,14 @@ export class ObaService {
    */
   async boardOf(externalId) {
     const watch = this.watchOfDevice(externalId);
-    if (!watch) {
+    // A device deleted from Gladys is never read again: gone, not "loading".
+    if (!watch || !this.isCreated(externalId)) {
       return null;
     }
     let board = this.boards.get(watchKey(watch));
     // Read again when stale, unless a read was just tried (server down: the
     // aged board is served at once instead of a read per widget or scene).
     if (
-      this.isCreated(externalId) &&
       (!board || this.now() - board.at > this.config.refreshSeconds * 2000) &&
       !(this.now() - (this.attemptedAt ?? 0) < this.config.refreshSeconds * 1000)
     ) {

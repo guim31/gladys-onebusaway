@@ -104,7 +104,7 @@ de service**. Le titre est le nom que vous avez donné à l'appareil dans Gladys
 
 ## Déclencheurs de scène
 
-Chaque déclencheur peut être limité à un arrêt et à une ligne (telle qu'écrite sur le véhicule).
+Chaque déclencheur peut être limité à un arrêt et à une ligne (telle qu'écrite sur le véhicule). Sans arrêt choisi, deux appareils du même arrêt (filtres différents) déclenchent chacun leur événement.
 
 - **C'est l'heure de partir** : un départ part dans le nombre de minutes choisi (1 à 20). Une fois
   par trajet, quand son compte à rebours atteint ce nombre. Un trajet vu pour la première fois déjà
@@ -112,7 +112,7 @@ Chaque déclencheur peut être limité à un arrêt et à une ligne (telle qu'é
 - **Départ en retard** : un départ a au moins le retard choisi (1 à 60 minutes). Une fois par trajet
   et par seuil.
 - **Nouvelle alerte de service** : une alerte de service du réseau entre en vigueur à l'arrêt ou sur
-  l'une de ses lignes. Une fois par alerte et par ligne.
+  l'une de ses lignes. Une fois par alerte et par ligne, si elle est entrée en vigueur depuis moins de 30 minutes (une alerte en vigueur depuis le matin, vue pour la première fois avec un trajet plus tardif, n'est pas annoncée).
 
 Variables transmises à la scène : arrêt, ligne, destination, heures prévue et estimée, minutes,
 retard, temps réel (1/0) ; pour une alerte, son résumé et son détail. Ce qui est déjà là au démarrage

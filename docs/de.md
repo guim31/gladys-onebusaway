@@ -106,7 +106,7 @@ Name, den du dem Gerät in Gladys gegeben hast.
 
 ## Szenen-Auslöser
 
-Jeder Auslöser lässt sich auf eine Haltestelle und eine Linie (wie auf dem Fahrzeug) beschränken.
+Jeder Auslöser lässt sich auf eine Haltestelle und eine Linie (wie auf dem Fahrzeug) beschränken. Ohne gewählte Haltestelle lösen zwei Geräte derselben Haltestelle (andere Filter) jeweils ihr eigenes Ereignis aus.
 
 - **Zeit zu gehen**: eine Abfahrt fährt in der gewählten Zahl Minuten (1 bis 20). Einmal pro Fahrt,
   wenn ihr Countdown die Zahl erreicht. Eine Fahrt, die zum ersten Mal schon im Fenster gesehen wird,
@@ -114,7 +114,7 @@ Jeder Auslöser lässt sich auf eine Haltestelle und eine Linie (wie auf dem Fah
 - **Abfahrt verspätet**: eine Abfahrt hat mindestens die gewählte Verspätung (1 bis 60 Minuten).
   Einmal pro Fahrt und Schwelle.
 - **Neue Störungsmeldung**: eine Störungsmeldung des Verkehrsunternehmens tritt an der Haltestelle
-  oder auf einer ihrer Linien in Kraft. Einmal pro Meldung und Linie.
+  oder auf einer ihrer Linien in Kraft. Einmal pro Meldung und Linie, wenn sie vor weniger als 30 Minuten in Kraft getreten ist (eine seit dem Morgen gültige Meldung, die erst mit einer späteren Fahrt auftaucht, wird nicht gemeldet).
 
 An die Szene übergebene Variablen: Haltestelle, Linie, Ziel, planmäßige und erwartete Zeit, Minuten,
 Verspätung, Echtzeit (1/0); bei einer Meldung ihre Zusammenfassung und Details. Was beim Start der

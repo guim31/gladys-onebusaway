@@ -12,6 +12,7 @@ import { NO_DEPARTURE_MINUTES } from '../src/devices.js';
 import { MAX_WATCHES, TRIGGERS } from '../src/service.js';
 import {
   BENTON,
+  FIXTURE_TIME,
   ROOSEVELT,
   action,
   captureLogs,
@@ -329,6 +330,37 @@ test('an alert on a route the watch filters out does not count', async (t) => {
     world.fake.sceneEvents.filter((e) => e.key === TRIGGERS.ALERT).map((e) => e.data.summary),
     ['Stop closed'],
   );
+});
+
+test('an alert in force for long, first seen with a trip entering the window, is no news', async (t) => {
+  const world = await createWorld();
+  t.after(() => world.app.stop());
+  await action(world, 'add_stop', { stop: BENTON, lines: '77' });
+  const benton = await create(world, 'Benton');
+  const body = world.network.stops[BENTON];
+  body.data.references.situations.push(
+    situation({ id: '1_990004', summary: 'Since this morning', from: FIXTURE_TIME - 3 * 3600000 }),
+  );
+  for (const entry of arrivalsOf(body, '77')) {
+    entry.situationIds.push('1_990004');
+  }
+  world.clock.advance(60000);
+  await world.service.refresh();
+  assert.equal(lastState(world, benton, 'alert'), 1);
+  assert.ok(!world.fake.sceneEvents.some((event) => event.key === TRIGGERS.ALERT));
+});
+
+test('a device deleted from Gladys: the widget says the stop is gone', async (t) => {
+  const world = await createWorld();
+  t.after(() => world.app.stop());
+  await action(world, 'add_stop', { stop: BENTON });
+  const benton = await create(world, 'Benton');
+  world.gladys.devices.splice(0, world.gladys.devices.length);
+  const ack = await world.fake.widgetGet('arrivals', {
+    settings: { stop: benton.external_id },
+    language: 'en',
+  });
+  assert.equal(ack.data.content.components[0].text, 'This stop is no longer watched.');
 });
 
 test('a restart does not announce the same alert again', async (t) => {

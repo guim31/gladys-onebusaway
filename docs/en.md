@@ -100,14 +100,14 @@ unless you turn off **Show service alerts**. The heading is the name you gave th
 
 ## Scene triggers
 
-Each trigger can be limited to a stop and to a route (as written on the vehicle).
+Each trigger can be limited to a stop and to a route (as written on the vehicle). Without a stop, two devices of the same stop (other filters) each fire their own event.
 
 - **Time to leave**: a departure leaves in the chosen number of minutes (1 to 20). Fires once per
   trip, when its countdown reaches the number. A trip first seen inside the window does not fire.
 - **Departure delayed**: a departure is late by the chosen number of minutes or more (1 to 60).
   Once per trip and threshold.
 - **New service alert**: a service alert of the agency comes into force at the stop or on one of
-  its routes. Once per alert and route.
+  its routes. Once per alert and route, when it has come into force within the last 30 minutes (an alert in force since the morning, first seen with a later trip, is not announced).
 
 Variables passed to the scene: stop, route, destination, scheduled and expected times, minutes,
 delay, real time (1/0); for an alert, its summary and details. What is already there when the

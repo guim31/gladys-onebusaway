@@ -303,5 +303,10 @@ seuils, un widget, une action de scène) : voir ses notes pour le fonctionnement
 - Sans clé personnelle, la clé `TEST` (Puget Sound seulement) ; l'état le dit. `transports: cloud`,
   `countries: US, AU` (Adélaïde).
 - Fenêtre de 120 min (`minutesAfter`) ; sans passage, comptes à rebours à 1440.
+- Nouvelle alerte : annoncée seulement si sa fenêtre en cours a commencé il y a moins de 30 min
+  (une alerte liée à un trajet n'apparaît qu'avec lui : sinon, une alerte du matin serait « nouvelle »
+  au premier bus de l'après-midi).
+- Une erreur de `fetch` sans `cause.code` peut citer l'URL, donc la clé : remplacée par « network
+  error ». Une adresse de serveur avec identifiants (`user:pw@`) est refusée pour la même raison.
 - Trois déclencheurs (heure de partir, retard, nouvelle alerte) ; pas de déclencheur « supprimé »,
   les suppressions OBA étant rares et non observées.

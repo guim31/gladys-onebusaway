@@ -45,7 +45,9 @@ export function normalizeBaseUrl(text) {
   const value = String(text ?? '').trim();
   try {
     const url = new URL(value);
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    // Credentials in the address would end up in fetch's error messages,
+    // next to the key: refused.
+    if ((url.protocol !== 'https:' && url.protocol !== 'http:') || url.username || url.password) {
       return null;
     }
     url.search = '';
@@ -130,8 +132,9 @@ export class Oba {
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
     } catch (err) {
+      // fetch's own messages can quote the URL, key included: never shown.
       throw new ObaError(
-        `${host}: ${err.name === 'TimeoutError' ? 'timeout' : (err.cause?.code ?? err.message)}`,
+        `${host}: ${err.name === 'TimeoutError' ? 'timeout' : (err.cause?.code ?? 'network error')}`,
       );
     }
     let body;

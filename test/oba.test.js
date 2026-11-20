@@ -36,6 +36,8 @@ test('stop ids, coordinates, route lists and server addresses', () => {
   );
   assert.equal(normalizeBaseUrl('ftp://x.org'), null);
   assert.equal(normalizeBaseUrl('not a url'), null);
+  // Credentials in the address would show in fetch's errors, next to the key.
+  assert.equal(normalizeBaseUrl('https://user:pw@oba.example.org'), null);
   assert.equal(normalizeConfig({}).baseUrl, 'https://api.pugetsound.onebusaway.org');
   assert.equal(normalizeConfig({ region: 'nowhere' }).region, 'puget_sound');
   assert.equal(normalizeConfig({ region: 'custom', server_url: '' }).baseUrl, null);
@@ -159,6 +161,11 @@ test('client: unknown stop (404 or a null body), refused key, rate limit, cut', 
   network.fail = Object.assign(new TypeError('fetch failed'), { cause: { code: 'ECONNREFUSED' } });
   await assert.rejects(oba.arrivals(BENTON), {
     message: 'api.pugetsound.onebusaway.org: ECONNREFUSED',
+  });
+  // A fetch error without a code may quote the URL (and the key): not shown.
+  network.fail = new TypeError('Request failed for https://x/?key=TEST');
+  await assert.rejects(oba.arrivals(BENTON), {
+    message: 'api.pugetsound.onebusaway.org: network error',
   });
   network.fail = null;
   const ok = await oba.arrivals(BENTON);

@@ -106,20 +106,27 @@ export const aged = (departures, now) =>
 /** The departures that will run: not cancelled. */
 export const running = (departures) => departures.filter((departure) => !departure.cancelled);
 
-/** In force at `now`: inside one of its active windows, or without any. */
-export function inForce(situation, now) {
+/**
+ * Whether an alert is in force at `now` (inside one of its active windows, or
+ * without any), and since when (the start of that window, 0 when unknown).
+ */
+export function inForceSince(situation, now) {
   const windows = (situation?.activeWindows ?? []).filter(
     (window) => positive(window?.from) || positive(window?.to),
   );
-  return (
-    windows.length === 0 ||
-    windows.some(
-      (window) =>
-        (!positive(window.from) || positive(window.from) <= now) &&
-        (!positive(window.to) || now <= positive(window.to)),
-    )
+  if (windows.length === 0) {
+    return { inForce: true, since: 0 };
+  }
+  const current = windows.find(
+    (window) =>
+      (!positive(window.from) || positive(window.from) <= now) &&
+      (!positive(window.to) || now <= positive(window.to)),
   );
+  return current ? { inForce: true, since: positive(current.from) } : { inForce: false, since: 0 };
 }
+
+/** In force at `now`: inside one of its active windows, or without any. */
+export const inForce = (situation, now) => inForceSince(situation, now).inForce;
 
 const text = (value) => String(value?.value ?? value ?? '').trim();
 
@@ -140,7 +147,8 @@ export function alertsFor(answer, departures, now) {
   const kept = new Set(departures.map((departure) => departure.line));
   const found = [];
   for (const situation of answer?.references?.situations ?? []) {
-    if (!situation?.id || !wanted.has(situation.id) || !inForce(situation, now)) {
+    const force = inForceSince(situation, now);
+    if (!situation?.id || !wanted.has(situation.id) || !force.inForce) {
       continue;
     }
     const lines = [
@@ -152,6 +160,7 @@ export function alertsFor(answer, departures, now) {
     ];
     found.push({
       id: String(situation.id),
+      since: force.since,
       lines,
       summary: text(situation.summary),
       description: text(situation.description),

@@ -8,10 +8,20 @@
 
 import { BENTON, FIXTURE_TIME, action, create } from './world.js';
 
-/** A service alert as the OneBusAway API writes it, in force around the fixture time. */
-export function situation({ id, summary, description = '', routeIds = [], stopIds = [] }) {
+/**
+ * A service alert as the OneBusAway API writes it, coming into force a minute
+ * after the fixture time (`from`), for six hours.
+ */
+export function situation({
+  id,
+  summary,
+  description = '',
+  routeIds = [],
+  stopIds = [],
+  from = FIXTURE_TIME + 60000,
+}) {
   return {
-    activeWindows: [{ from: FIXTURE_TIME - 3600000, to: FIXTURE_TIME + 6 * 3600000 }],
+    activeWindows: [{ from, to: from + 6 * 3600000 }],
     allAffects: [
       ...routeIds.map((routeId) => ({ agencyId: '1', routeId, stopId: '', tripId: '' })),
       ...stopIds.map((stopId) => ({ agencyId: '1', routeId: '', stopId, tripId: '' })),

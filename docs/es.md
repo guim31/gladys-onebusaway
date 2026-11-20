@@ -103,7 +103,7 @@ el nombre que dio al dispositivo en Gladys.
 
 ## Disparadores de escena
 
-Cada disparador puede limitarse a una parada y a una línea (tal como figura en el vehículo).
+Cada disparador puede limitarse a una parada y a una línea (tal como figura en el vehículo). Sin parada elegida, dos dispositivos de la misma parada (otros filtros) disparan cada uno su propio evento.
 
 - **Hora de salir**: una salida sale en el número de minutos elegido (1 a 20). Una vez por viaje,
   cuando su cuenta atrás llega a ese número. Un viaje visto por primera vez ya dentro de la ventana no
@@ -111,7 +111,7 @@ Cada disparador puede limitarse a una parada y a una línea (tal como figura en 
 - **Salida con retraso**: una salida lleva al menos el retraso elegido (1 a 60 minutos). Una vez por
   viaje y por umbral.
 - **Nuevo aviso de servicio**: un aviso de servicio de la empresa entra en vigor en la parada o en una
-  de sus líneas. Una vez por aviso y por línea.
+  de sus líneas. Una vez por aviso y por línea, si entró en vigor hace menos de 30 minutos (un aviso vigente desde la mañana, visto por primera vez con un viaje posterior, no se anuncia).
 
 Variables enviadas a la escena: parada, línea, destino, horas prevista y estimada, minutos, retraso,
 tiempo real (1/0); para un aviso, su resumen y sus detalles. Lo que ya está al iniciar la integración

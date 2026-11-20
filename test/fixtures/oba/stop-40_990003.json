@@ -1,0 +1,79 @@
+{
+  "code": 200,
+  "currentTime": 1795212441025,
+  "data": {
+    "entry": {
+      "code": "990003",
+      "direction": "S",
+      "id": "40_990003",
+      "lat": 47.676107,
+      "locationType": 0,
+      "lon": -122.316041,
+      "name": "Roosevelt",
+      "parent": "40_N09",
+      "routeIds": ["40_100479", "40_2LINE"],
+      "staticRouteIds": ["40_100479", "40_2LINE"],
+      "wheelchairBoarding": "ACCESSIBLE"
+    },
+    "references": {
+      "agencies": [
+        {
+          "disclaimer": "",
+          "email": "main@soundtransit.org",
+          "fareUrl": "https://www.soundtransit.org/ride-with-us/how-to-pay/fares",
+          "id": "40",
+          "lang": "en",
+          "name": "Sound Transit",
+          "phone": "1-888-889-6368",
+          "privateService": false,
+          "timezone": "America/Los_Angeles",
+          "url": "https://www.soundtransit.org"
+        },
+        {
+          "disclaimer": "",
+          "email": "",
+          "fareUrl": "https://kingcounty.gov/en/dept/metro/fares-and-payment/prices",
+          "id": "1",
+          "lang": "EN",
+          "name": "Metro Transit",
+          "phone": "206-553-3000",
+          "privateService": false,
+          "timezone": "America/Los_Angeles",
+          "url": "https://kingcounty.gov/en/dept/metro"
+        }
+      ],
+      "routes": [
+        {
+          "agencyId": "40",
+          "color": "28813F",
+          "description": "1 Line runs between Lynnwood City Center Station and Federal Way Downtown Station seven days a week",
+          "id": "40_100479",
+          "longName": "Lynnwood - Federal Way",
+          "nullSafeShortName": "1 Line",
+          "shortName": "1 Line",
+          "textColor": "FFFFFF",
+          "type": 0,
+          "url": "https://www.soundtransit.org/1"
+        },
+        {
+          "agencyId": "40",
+          "color": "007CAD",
+          "description": "2 Line runs between Lynnwood City Center Station and Downtown Redmond Station seven days a week",
+          "id": "40_2LINE",
+          "longName": "Lynnwood - Downtown Redmond",
+          "nullSafeShortName": "2 Line",
+          "shortName": "2 Line",
+          "textColor": "FFFFFF",
+          "type": 0,
+          "url": "https://www.soundtransit.org/2"
+        }
+      ],
+      "situations": [],
+      "stopTimes": [],
+      "stops": [],
+      "trips": []
+    }
+  },
+  "text": "OK",
+  "version": 2
+}

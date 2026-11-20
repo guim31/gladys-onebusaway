@@ -30,6 +30,14 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+The only secret is the OneBusAway API key you enter in the configuration: Gladys
+stores it, the integration sends it only to the OneBusAway server of the chosen
+region (in the query string, as the API requires, over HTTPS for the listed
+regions) and never writes it to its logs or error messages. The integration
+writes a single file, `/data/watch.json`: the watched stops and their filters,
+and the service alerts already announced to the scenes (forgotten after 48
+hours). It opens no port.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+and the OneBusAway servers of the transit agencies.
